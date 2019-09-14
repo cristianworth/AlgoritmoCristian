@@ -57,18 +57,15 @@ public class Client extends JFrame implements ActionListener, KeyListener {
         jtfNomeUsuario = new JTextField("Cliente");
         Object[] texts = {lblMessage, jtfNomeUsuario };
         JOptionPane.showMessageDialog(null, texts);
-        jpPainelPrincipal = new JPanel();
-        jpPainelPrincipal.setSize(400,400);
-        
-        btnAtualizar = new JButton("Att Hora");
-        btnAtualizar.setToolTipText("Atualizar Hora");
-        btnAtualizar.addActionListener(this);
-        
-        areaTexto = new JTextArea(10, 20);
+        jpPainelPrincipal = new JPanel();        
+        areaTexto = new JTextArea(15, 30);
         areaTexto.setEditable(false);
         areaTexto.setBackground(new Color(240, 240, 240));
-        jtfMensagem = new JTextField(20);
+        jtfMensagem = new JTextField(24);
         lblNome = new JLabel(jtfNomeUsuario.getText());
+        btnAtualizar = new JButton("Sinc. Hora");
+        btnAtualizar.setToolTipText("Atualizar Hora");
+        btnAtualizar.addActionListener(this);
         jblMensagem = new JLabel("Digite sua Mensagem:");
         btnEnviar = new JButton("Enviar");
         btnEnviar.setToolTipText("Enviar Mensagem");
@@ -77,26 +74,23 @@ public class Client extends JFrame implements ActionListener, KeyListener {
         jtfMensagem.addKeyListener(this);
         JScrollPane scroll = new JScrollPane(areaTexto);
         areaTexto.setLineWrap(true);
-        //jpPainelPrincipal.add(btnAtualizar);
+        
         jpPainelPrincipal.add(lblNome);
         jpPainelPrincipal.add(scroll);
-        jpPainelPrincipal.add(jblMensagem);
+        //jpPainelPrincipal.add(jblMensagem);
         jpPainelPrincipal.add(jtfMensagem);
         jpPainelPrincipal.add(btnEnviar);
+        jpPainelPrincipal.add(btnAtualizar);
         jpPainelPrincipal.setBackground(Color.LIGHT_GRAY);
         setTitle("Chat");
         setContentPane(jpPainelPrincipal);
         setLocationRelativeTo(null);
         setResizable(false);
-        setSize(250, 300);
+        setSize(375, 375);
         setVisible(true);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
-    public boolean usarDataServidor(){
-        return true;
-    }
-    
     public void conectar() throws IOException {
         socket = new Socket(jtfIpServidor.getText(), Integer.parseInt(jtfPortaServidor.getText()));
         saidaStream = socket.getOutputStream();
@@ -107,13 +101,6 @@ public class Client extends JFrame implements ActionListener, KeyListener {
     }
 
     public void enviarMensagem(String msg) throws IOException, Exception {
-        
-        algoritmoCristian.setInitialClientDate(dataInicial);
-        algoritmoCristian.setFinalClientDate(dataFinal);
-        
-        if(usarDataServidor()){
-            
-        }
         
         //before write the date, sync the date with the server
         buffWriter.write(jtfMensagem.getText() + "\r\n");
@@ -144,7 +131,10 @@ public class Client extends JFrame implements ActionListener, KeyListener {
             }
             if (e.getActionCommand().equals(btnAtualizar.getActionCommand())) {
                 System.out.println("botao atualizar aqui");
-                //enviarMensagem(jtfMensagem.getText());
+                algoritmoCristian.setInitialClientDate(dataInicial);
+                algoritmoCristian.setFinalClientDate(dataFinal);
+                //algoritmoCristian(); 
+        
             }
         } catch (IOException e1) {
             e1.printStackTrace();

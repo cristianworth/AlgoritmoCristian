@@ -60,17 +60,17 @@ public class AlgoritmoCristian {
         return calendar.getTime();
     }
     
-    public void sincronizaData(){
+    public void gravaLog(){
         //gravarArq.println(jtfMensagem.getText());
     }
     
-    public long diffData() throws InterruptedException{
+    public long sincronizaData() throws InterruptedException{
         //Thread.currentThread().sleep(1000);
         long diffClient = Math.abs(getFinalClientDate().getTime() - getInitialClientDate().getTime());
         long diffServer = Math.abs(getFinalServerDate().getTime() - getInitialServerDate().getTime());
         long diffInMillies = (diffClient-diffServer)/2;
-        //long diff = TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-        return diffInMillies;
+        long diff = TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        return diff;
     }
      
     public AlgoritmoCristian(){
@@ -79,13 +79,6 @@ public class AlgoritmoCristian {
         PrintWriter gravarArq = new PrintWriter(arq, true);    
         
         gravarArq.println("BOA TARDE TESTE");
-        
-        Date firstDate = formatter.parse("07-09-2019 11:18:10");
-        Date secondDate = new Date();
-        
-        long diffInMillies = Math.abs(secondDate.getTime() - firstDate.getTime());
-        long diff = TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-        System.out.println("Diferença em ms: "+diff);
         } catch (Exception e) {
              e.printStackTrace();
         }

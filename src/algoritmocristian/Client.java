@@ -27,11 +27,11 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
 public class Client extends JFrame implements ActionListener, KeyListener {
 
     private static final long serialVersionUID = 1L;
-    Date minhaData;
-    Date dataInicial;
-    Date dataFinal;
-    SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-    AlgoritmoCristian algoritmoCristian = new AlgoritmoCristian();
+    private boolean usarDataServidor=false;
+    private Date ClientDate;
+    private SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+    private AlgoritmoCristian algoritmoCristian = new AlgoritmoCristian();
+    private Server server = new Server();
     private JTextArea areaTexto;
     private JTextField jtfMensagem;
     private JButton btnAtualizar;
@@ -48,16 +48,16 @@ public class Client extends JFrame implements ActionListener, KeyListener {
     private JTextField jtfNomeUsuario;
 
     public Client() throws IOException, ParseException {
-        dataInicial = formatter.parse("09:00:00");
-        dataFinal = formatter.parse("09:01:06");
-            
+        ClientDate = new Date();
+        System.out.println("ClientDate: " + ClientDate);
+
         JLabel lblMessage = new JLabel("Digite seu nome abaixo: ");
         jtfIpServidor = new JTextField("127.0.0.1");
         jtfPortaServidor = new JTextField("12345");
         jtfNomeUsuario = new JTextField("Cliente");
-        Object[] texts = {lblMessage, jtfNomeUsuario };
+        Object[] texts = {lblMessage, jtfNomeUsuario};
         JOptionPane.showMessageDialog(null, texts);
-        jpPainelPrincipal = new JPanel();        
+        jpPainelPrincipal = new JPanel();
         areaTexto = new JTextArea(15, 30);
         areaTexto.setEditable(false);
         areaTexto.setBackground(new Color(240, 240, 240));
@@ -74,7 +74,7 @@ public class Client extends JFrame implements ActionListener, KeyListener {
         jtfMensagem.addKeyListener(this);
         JScrollPane scroll = new JScrollPane(areaTexto);
         areaTexto.setLineWrap(true);
-        
+
         jpPainelPrincipal.add(lblNome);
         jpPainelPrincipal.add(scroll);
         //jpPainelPrincipal.add(jblMensagem);
@@ -91,6 +91,22 @@ public class Client extends JFrame implements ActionListener, KeyListener {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
+    public Date buscaDataServidor() throws InterruptedException, ParseException {
+        //Date dataInicial = formatter.parse("09:00:00");
+        //Date dataFinal = formatter.parse("09:01:06");
+        Date dataInicial = new Date();
+        Date dataFinal;
+        
+        algoritmoCristian.setInitialClientDate(dataInicial);
+        Date dataServidor = server.getDataServidor();
+        dataFinal = algoritmoCristian.addSecondsToDate(dataInicial, 66);
+        algoritmoCristian.setFinalClientDate(dataFinal);
+
+        int retorno = (int) algoritmoCristian.sincronizaData();
+        dataServidor = algoritmoCristian.addSecondsToDate(dataServidor, retorno);
+        return dataServidor;
+    }
+
     public void conectar() throws IOException {
         socket = new Socket(jtfIpServidor.getText(), Integer.parseInt(jtfPortaServidor.getText()));
         saidaStream = socket.getOutputStream();
@@ -101,24 +117,29 @@ public class Client extends JFrame implements ActionListener, KeyListener {
     }
 
     public void enviarMensagem(String msg) throws IOException, Exception {
+        if(usarDataServidor){
+            ClientDate=buscaDataServidor();
+        }
         
-        //before write the date, sync the date with the server
         buffWriter.write(jtfMensagem.getText() + "\r\n");
-        areaTexto.append(algoritmoCristian.formataDataString(algoritmoCristian.addHoursToDate(new Date(),1)) + jtfNomeUsuario.getText() + ": " + jtfMensagem.getText() + "\r\n");
+        areaTexto.append(algoritmoCristian.formataDataString(ClientDate) + jtfNomeUsuario.getText() + ": " + jtfMensagem.getText() + "\r\n");
 
         buffWriter.flush();
         jtfMensagem.setText("");
     }
 
-    public void escutar() throws IOException {
+    public void escutar() throws IOException, InterruptedException, ParseException {
         InputStream in = socket.getInputStream();
         InputStreamReader inr = new InputStreamReader(in);
         BufferedReader bfr = new BufferedReader(inr);
         String msg = "";
+        if(usarDataServidor){
+            ClientDate=buscaDataServidor();
+        }
         while (true) {
             if (bfr.ready()) {
                 msg = bfr.readLine();
-                areaTexto.append(algoritmoCristian.formataDataString(new Date()) + msg + "\r\n");
+                areaTexto.append(algoritmoCristian.formataDataString(ClientDate) + msg + "\r\n");
             }
         }
     }
@@ -130,11 +151,7 @@ public class Client extends JFrame implements ActionListener, KeyListener {
                 enviarMensagem(jtfMensagem.getText());
             }
             if (e.getActionCommand().equals(btnAtualizar.getActionCommand())) {
-                System.out.println("botao atualizar aqui");
-                algoritmoCristian.setInitialClientDate(dataInicial);
-                algoritmoCristian.setFinalClientDate(dataFinal);
-                //algoritmoCristian(); 
-        
+                usarDataServidor=!usarDataServidor;
             }
         } catch (IOException e1) {
             e1.printStackTrace();
@@ -142,7 +159,7 @@ public class Client extends JFrame implements ActionListener, KeyListener {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -157,12 +174,14 @@ public class Client extends JFrame implements ActionListener, KeyListener {
     }
 
     @Override
-    public void keyReleased(KeyEvent arg0) {}
+    public void keyReleased(KeyEvent arg0) {
+    }
 
     @Override
-    public void keyTyped(KeyEvent arg0) {}
+    public void keyTyped(KeyEvent arg0) {
+    }
 
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args) throws IOException, ParseException, InterruptedException {
         Client cliente = new Client();
         cliente.conectar();
         cliente.escutar();

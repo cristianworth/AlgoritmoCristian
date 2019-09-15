@@ -34,6 +34,14 @@ public class Server extends Thread {
     private InputStreamReader inputReader;
     private BufferedReader buffReader;
 
+    public Server(){}
+    
+    public Date getDataServidor(){
+        Date dataRecebida = new Date();
+        dataRecebida=algoritmoCristian.addSecondsToDate(dataRecebida, 60); //delay tempo de processamento;
+        return dataRecebida;
+    }
+    
     public Server(Socket con) throws ParseException {
         dataInicial = formatter.parse("19-09-2019 12:00:00");
         dataFinal = formatter.parse("19-09-2019 12:01:00");

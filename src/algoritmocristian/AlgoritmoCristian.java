@@ -9,12 +9,14 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class AlgoritmoCristian {
-    
+    private FileWriter arq;
+    private PrintWriter gravarArq;
     SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
     Date InitialServerDate;
     Date FinalServerDate;
     Date InitialClientDate;
     Date FinalClientDate;
+    Long TempoProcessamentoServidor;
     
     public static String formataDataString(Date date){
         Calendar calendar = Calendar.getInstance();
@@ -60,25 +62,24 @@ public class AlgoritmoCristian {
         return calendar.getTime();
     }
     
-    public void gravaLog(){
-        //gravarArq.println(jtfMensagem.getText());
+    public void gravaLog(String texto){
+        gravarArq.println(texto);
     }
     
     public long sincronizaData() throws InterruptedException{
         //Thread.currentThread().sleep(1000);
         long diffClient = Math.abs(getFinalClientDate().getTime() - getInitialClientDate().getTime());
-        long diffServer = Math.abs(getFinalServerDate().getTime() - getInitialServerDate().getTime());
-        long diffInMillies = (diffClient-diffServer)/2;
+        
+        long i = TempoProcessamentoServidor;
+        long diffInMillies = (diffClient-i)/2;
         long diff = TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS);
         return diff;
     }
      
     public AlgoritmoCristian(){
         try {
-        FileWriter arq = new FileWriter("D:\\CC\\6º Sem\\5 - Sistemas Distribuídos\\LogSyncTime.txt");
-        PrintWriter gravarArq = new PrintWriter(arq, true);    
-        
-        gravarArq.println("BOA TARDE TESTE");
+        arq = new FileWriter("D:\\CC\\6º Sem\\5 - Sistemas Distribuídos\\LogSyncTime.txt");
+        gravarArq = new PrintWriter(arq, true);
         } catch (Exception e) {
              e.printStackTrace();
         }
@@ -121,6 +122,14 @@ public class AlgoritmoCristian {
 
     public void setFinalClientDate(Date FinalClientDate) {
         this.FinalClientDate = FinalClientDate;
+    }
+
+    public Long getTempoProcessamentoServidor() {
+        return TempoProcessamentoServidor;
+    }
+
+    public void setTempoProcessamentoServidor(Long TempoProcessamentoServidor) {
+        this.TempoProcessamentoServidor = TempoProcessamentoServidor;
     }
     
 }

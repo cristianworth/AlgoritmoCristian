@@ -19,12 +19,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 public class Server extends Thread {
-
+    long TempoProcessamentoServidor;
     private static ArrayList<BufferedWriter> listaDeUsuarios;
-    Date dataInicial;
-    Date dataFinal;
-    SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-    AlgoritmoCristian algoritmoCristian = new AlgoritmoCristian();
+    private Date dataInicial;
+    private Date dataFinal;
+    private SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    private AlgoritmoCristian algoritmoCristian = new AlgoritmoCristian();
     private long timeRecvServer;  // the time when receiving message from client
     private long timeSendServer;  // the time when sending message to client
     private static ServerSocket server;
@@ -36,10 +36,19 @@ public class Server extends Thread {
 
     public Server(){}
     
-    public Date getDataServidor(){
-        Date dataRecebida = new Date();
-        dataRecebida=algoritmoCristian.addSecondsToDate(dataRecebida, 60); //delay tempo de processamento;
-        return dataRecebida;
+    public Date getDataServidor() throws InterruptedException{
+        Date dataInicial = new Date();
+        Date dataFinal;
+        //algoritmoCristian.setInitialServerDate(dataInicial);
+        
+        dataFinal=algoritmoCristian.addSecondsToDate(dataInicial, 60); //delay tempo de processamento;
+        //algoritmoCristian.setFinalServerDate(dataFinal);
+        
+        long tempoProcessamento = Math.abs(dataFinal.getTime() - dataFinal.getTime());
+        algoritmoCristian.TempoProcessamentoServidor = tempoProcessamento;
+        TempoProcessamentoServidor=tempoProcessamento;
+        
+        return dataFinal;
     }
     
     public Server(Socket con) throws ParseException {
@@ -77,10 +86,7 @@ public class Server extends Thread {
         }
     }
     
-    public void sendToAll(BufferedWriter bwSaida, String msg) throws IOException, ParseException {       
-        algoritmoCristian.setInitialServerDate(dataInicial);
-        algoritmoCristian.setFinalServerDate(dataFinal);
-        
+    public void sendToAll(BufferedWriter bwSaida, String msg) throws IOException, ParseException {
         BufferedWriter bwS;
         for (BufferedWriter bw : listaDeUsuarios) {
             bwS = (BufferedWriter) bw;

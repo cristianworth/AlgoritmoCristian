@@ -27,7 +27,7 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
 public class Client extends JFrame implements ActionListener, KeyListener {
 
     private static final long serialVersionUID = 1L;
-    private boolean usarDataServidor=false;
+    private boolean usarDataServidor = false;
     private Date ClientDate;
     private SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
     private AlgoritmoCristian algoritmoCristian = new AlgoritmoCristian();
@@ -96,14 +96,27 @@ public class Client extends JFrame implements ActionListener, KeyListener {
         //Date dataFinal = formatter.parse("09:01:06");
         Date dataInicial = new Date();
         Date dataFinal;
-        
+
         algoritmoCristian.setInitialClientDate(dataInicial);
-        Date dataServidor = server.getDataServidor();
         dataFinal = algoritmoCristian.addSecondsToDate(dataInicial, 66);
         algoritmoCristian.setFinalClientDate(dataFinal);
+        
+        Date dataServidor = server.getDataServidor();
+        try { 
+            Thread.sleep (1000); 
+            //algoritmoCristian.setTempoProcessamentoServidor(10l);
+            long tmp = server.TempoProcessamentoServidor;
+            System.out.println("getTempoProcessamentoServidor: " + tmp);
+            if (tmp>0){
+                System.out.println("entrou no if");
+                int retorno = (int)algoritmoCristian.sincronizaData();
+                dataServidor = algoritmoCristian.addSecondsToDate(dataServidor, (int)algoritmoCristian.sincronizaData());
+            }
+            
+        
+        } catch (InterruptedException ex) {}
+        
 
-        int retorno = (int) algoritmoCristian.sincronizaData();
-        dataServidor = algoritmoCristian.addSecondsToDate(dataServidor, retorno);
         return dataServidor;
     }
 
@@ -117,10 +130,11 @@ public class Client extends JFrame implements ActionListener, KeyListener {
     }
 
     public void enviarMensagem(String msg) throws IOException, Exception {
-        if(usarDataServidor){
-            ClientDate=buscaDataServidor();
+        if (usarDataServidor) {
+            //ClientDate=new Date();
+            ClientDate = buscaDataServidor();
         }
-        
+
         buffWriter.write(jtfMensagem.getText() + "\r\n");
         areaTexto.append(algoritmoCristian.formataDataString(ClientDate) + jtfNomeUsuario.getText() + ": " + jtfMensagem.getText() + "\r\n");
 
@@ -133,12 +147,14 @@ public class Client extends JFrame implements ActionListener, KeyListener {
         InputStreamReader inr = new InputStreamReader(in);
         BufferedReader bfr = new BufferedReader(inr);
         String msg = "";
-        if(usarDataServidor){
-            ClientDate=buscaDataServidor();
+        if (usarDataServidor) {
+            //ClientDate=new Date();
+
         }
         while (true) {
             if (bfr.ready()) {
                 msg = bfr.readLine();
+                algoritmoCristian.gravaLog("escutar Cliente");
                 areaTexto.append(algoritmoCristian.formataDataString(ClientDate) + msg + "\r\n");
             }
         }
@@ -151,7 +167,7 @@ public class Client extends JFrame implements ActionListener, KeyListener {
                 enviarMensagem(jtfMensagem.getText());
             }
             if (e.getActionCommand().equals(btnAtualizar.getActionCommand())) {
-                usarDataServidor=!usarDataServidor;
+                usarDataServidor = !usarDataServidor;
             }
         } catch (IOException e1) {
             e1.printStackTrace();

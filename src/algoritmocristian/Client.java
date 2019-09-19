@@ -94,10 +94,8 @@ public class Client extends JFrame implements ActionListener, KeyListener {
     }
 
     public Date geraDataCristian() throws InterruptedException, ParseException {
-        Date dataInicial = formatter.parse("19-09-2019 09:00:00");
-        Date dataFinal = formatter.parse("19-09-2019 09:01:06");
-        //Date dataInicial = new Date();
-        //Date dataFinal;
+        Date dataInicial = formatter.parse("26-09-2019 09:00:00");
+        Date dataFinal = formatter.parse("26-09-2019 09:01:06");
 
         algoritmoCristian.setInitialClientDate(dataInicial);
         dataFinal = algoritmoCristian.addSecondsToDate(dataInicial, 66);
@@ -107,7 +105,7 @@ public class Client extends JFrame implements ActionListener, KeyListener {
 
         algoritmoCristian.geraLog();
         int retorno = (int) algoritmoCristian.sincronizaData();
-        //ServerDate = algoritmoCristian.addSecondsToDate(dataServidor, retorno);
+        
         return algoritmoCristian.addSecondsToDate(dataServidor, retorno);
     }
 
@@ -122,7 +120,7 @@ public class Client extends JFrame implements ActionListener, KeyListener {
 
     public void enviarMensagem(String msg) throws IOException, Exception {
         String dataFormatadaString = "";
-        //geraDataCristian();
+        
         dataFormatadaString = algoritmoCristian.formataDataString(ServerDate);
         //dataFormatadaString = algoritmoCristian.formataDataString(ClientDate);
         
@@ -140,7 +138,6 @@ public class Client extends JFrame implements ActionListener, KeyListener {
         String msg = "";
         String dataFormatadaString = "";
         
-        //geraDataCristian();
         dataFormatadaString = algoritmoCristian.formataDataString(ServerDate);
         //dataFormatadaString = algoritmoCristian.formataDataString(ClientDate);
         

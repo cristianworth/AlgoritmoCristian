@@ -19,36 +19,31 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 public class Server extends Thread {
-    long TempoProcessamentoServidor;
     private static ArrayList<BufferedWriter> listaDeUsuarios;
-    private Date dataInicial;
-    private Date dataFinal;
     private SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-    private AlgoritmoCristian algoritmoCristian = new AlgoritmoCristian();
-    private long timeRecvServer;  // the time when receiving message from client
-    private long timeSendServer;  // the time when sending message to client
+    //Date dataInicial = new Date(2019, 9, 19, 20, 30, 11);
+    Date dataInicial = new Date(1571447410000l);//2019-09-18 22:10:10
+    Date dataFinal = algoritmoCristian.addSecondsToDate(dataInicial, 60);
+    private static AlgoritmoCristian algoritmoCristian = new AlgoritmoCristian();
     private static ServerSocket server;
     private String nome;
     private Socket socketServior;
     private InputStream input;
     private InputStreamReader inputReader;
     private BufferedReader buffReader;
-
+    
     public Server(){}
     
-    public Date getDataServidor() throws InterruptedException{
+    public void setDataServidor() throws InterruptedException{
         Date dataInicial = new Date();
         Date dataFinal;
-        //algoritmoCristian.setInitialServerDate(dataInicial);
+        algoritmoCristian.setInitialServerDate(dataInicial);
         
         dataFinal=algoritmoCristian.addSecondsToDate(dataInicial, 60); //delay tempo de processamento;
-        //algoritmoCristian.setFinalServerDate(dataFinal);
+        algoritmoCristian.setFinalServerDate(dataFinal);
         
-        long tempoProcessamento = Math.abs(dataFinal.getTime() - dataFinal.getTime());
-        algoritmoCristian.TempoProcessamentoServidor = tempoProcessamento;
-        TempoProcessamentoServidor=tempoProcessamento;
-        
-        return dataFinal;
+        long tempoProcessamento = Math.abs(dataFinal.getTime() - dataInicial.getTime());
+        algoritmoCristian.setTempoProcessamentoServidor(tempoProcessamento);;
     }
     
     public Server(Socket con) throws ParseException {
@@ -87,6 +82,7 @@ public class Server extends Thread {
     }
     
     public void sendToAll(BufferedWriter bwSaida, String msg) throws IOException, ParseException {
+        System.out.println("datafinal no server: " + dataFinal);
         BufferedWriter bwS;
         for (BufferedWriter bw : listaDeUsuarios) {
             bwS = (BufferedWriter) bw;
@@ -102,7 +98,9 @@ public class Server extends Thread {
             server = new ServerSocket(12345);
             listaDeUsuarios = new ArrayList<BufferedWriter>();
             JOptionPane.showMessageDialog(null, "Servidor Iniciado com Sucesso");
-
+            //setDataServidor();
+            //dataFinal = new Date();
+            
             while (true) {
                 System.out.println("Aguardando conexão...");
                 Socket con = server.accept();

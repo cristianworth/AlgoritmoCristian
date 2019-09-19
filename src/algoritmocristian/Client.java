@@ -28,8 +28,9 @@ public class Client extends JFrame implements ActionListener, KeyListener {
 
     private static final long serialVersionUID = 1L;
     private boolean usarDataServidor = false;
+    private Date ServerDate;
     private Date ClientDate;
-    private SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+    private SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
     private AlgoritmoCristian algoritmoCristian = new AlgoritmoCristian();
     private Server server = new Server();
     private JTextArea areaTexto;
@@ -47,9 +48,10 @@ public class Client extends JFrame implements ActionListener, KeyListener {
     private JTextField jtfPortaServidor;
     private JTextField jtfNomeUsuario;
 
-    public Client() throws IOException, ParseException {
+    public Client() throws IOException, ParseException, InterruptedException {
         ClientDate = new Date();
         System.out.println("ClientDate: " + ClientDate);
+        ServerDate=geraDataCristian();
 
         JLabel lblMessage = new JLabel("Digite seu nome abaixo: ");
         jtfIpServidor = new JTextField("127.0.0.1");
@@ -80,44 +82,33 @@ public class Client extends JFrame implements ActionListener, KeyListener {
         //jpPainelPrincipal.add(jblMensagem);
         jpPainelPrincipal.add(jtfMensagem);
         jpPainelPrincipal.add(btnEnviar);
-        jpPainelPrincipal.add(btnAtualizar);
+        //jpPainelPrincipal.add(btnAtualizar);
         jpPainelPrincipal.setBackground(Color.LIGHT_GRAY);
         setTitle("Chat");
         setContentPane(jpPainelPrincipal);
         setLocationRelativeTo(null);
         setResizable(false);
-        setSize(375, 375);
+        setSize(375, 350);
         setVisible(true);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
-    public Date buscaDataServidor() throws InterruptedException, ParseException {
-        //Date dataInicial = formatter.parse("09:00:00");
-        //Date dataFinal = formatter.parse("09:01:06");
-        Date dataInicial = new Date();
-        Date dataFinal;
+    public Date geraDataCristian() throws InterruptedException, ParseException {
+        Date dataInicial = formatter.parse("19-09-2019 09:00:00");
+        Date dataFinal = formatter.parse("19-09-2019 09:01:06");
+        //Date dataInicial = new Date();
+        //Date dataFinal;
 
         algoritmoCristian.setInitialClientDate(dataInicial);
         dataFinal = algoritmoCristian.addSecondsToDate(dataInicial, 66);
         algoritmoCristian.setFinalClientDate(dataFinal);
-        
-        Date dataServidor = server.getDataServidor();
-        try { 
-            Thread.sleep (1000); 
-            //algoritmoCristian.setTempoProcessamentoServidor(10l);
-            long tmp = server.TempoProcessamentoServidor;
-            System.out.println("getTempoProcessamentoServidor: " + tmp);
-            if (tmp>0){
-                System.out.println("entrou no if");
-                int retorno = (int)algoritmoCristian.sincronizaData();
-                dataServidor = algoritmoCristian.addSecondsToDate(dataServidor, (int)algoritmoCristian.sincronizaData());
-            }
-            
-        
-        } catch (InterruptedException ex) {}
-        
 
-        return dataServidor;
+        Date dataServidor = server.dataFinal;
+
+        algoritmoCristian.geraLog();
+        int retorno = (int) algoritmoCristian.sincronizaData();
+        //ServerDate = algoritmoCristian.addSecondsToDate(dataServidor, retorno);
+        return algoritmoCristian.addSecondsToDate(dataServidor, retorno);
     }
 
     public void conectar() throws IOException {
@@ -130,13 +121,13 @@ public class Client extends JFrame implements ActionListener, KeyListener {
     }
 
     public void enviarMensagem(String msg) throws IOException, Exception {
-        if (usarDataServidor) {
-            //ClientDate=new Date();
-            ClientDate = buscaDataServidor();
-        }
-
+        String dataFormatadaString = "";
+        //geraDataCristian();
+        dataFormatadaString = algoritmoCristian.formataDataString(ServerDate);
+        //dataFormatadaString = algoritmoCristian.formataDataString(ClientDate);
+        
         buffWriter.write(jtfMensagem.getText() + "\r\n");
-        areaTexto.append(algoritmoCristian.formataDataString(ClientDate) + jtfNomeUsuario.getText() + ": " + jtfMensagem.getText() + "\r\n");
+        areaTexto.append(dataFormatadaString + jtfNomeUsuario.getText() + ": " + jtfMensagem.getText() + "\r\n");
 
         buffWriter.flush();
         jtfMensagem.setText("");
@@ -147,15 +138,16 @@ public class Client extends JFrame implements ActionListener, KeyListener {
         InputStreamReader inr = new InputStreamReader(in);
         BufferedReader bfr = new BufferedReader(inr);
         String msg = "";
-        if (usarDataServidor) {
-            //ClientDate=new Date();
-
-        }
+        String dataFormatadaString = "";
+        
+        //geraDataCristian();
+        dataFormatadaString = algoritmoCristian.formataDataString(ServerDate);
+        //dataFormatadaString = algoritmoCristian.formataDataString(ClientDate);
+        
         while (true) {
             if (bfr.ready()) {
                 msg = bfr.readLine();
-                algoritmoCristian.gravaLog("escutar Cliente");
-                areaTexto.append(algoritmoCristian.formataDataString(ClientDate) + msg + "\r\n");
+                areaTexto.append(dataFormatadaString + msg + "\r\n");
             }
         }
     }
